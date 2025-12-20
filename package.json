@@ -1,0 +1,19 @@
+{
+  "name": "spur-ai-chat-agent",
+  "version": "1.0.0",
+  "description": "AI Live Chat Agent for Spur Take-Home Assignment",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm run dev -w packages/backend",
+    "dev:frontend": "npm run dev -w packages/frontend",
+    "build": "npm run build -w packages/backend && npm run build -w packages/frontend",
+    "test": "npm run test -w packages/backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
