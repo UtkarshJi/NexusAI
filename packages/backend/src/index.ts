@@ -1,9 +1,8 @@
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load .env from root directory (handles monorepo structure)
+// Load .env from multiple possible locations
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
-// Also try to load from 2 levels up in case running from packages/backend
 dotenv.config({ path: path.resolve(process.cwd(), '..', '..', '.env') });
 
 import express from 'express';
@@ -19,9 +18,27 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-// Middleware
+// Parse allowed origins (can be comma-separated for multiple)
+const allowedOrigins = FRONTEND_URL.split(',').map(url => url.trim());
+
+// Middleware - CORS configured for production
 app.use(cors({
-    origin: FRONTEND_URL,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or Postman)
+        if (!origin) return callback(null, true);
+
+        // Check if origin is in allowed list
+        if (allowedOrigins.some(allowed => origin.startsWith(allowed.replace(/\/$/, '')))) {
+            return callback(null, true);
+        }
+
+        // In development, be more permissive
+        if (process.env.NODE_ENV !== 'production') {
+            return callback(null, true);
+        }
+
+        callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
 }));
 app.use(express.json({ limit: '1mb' }));
@@ -50,7 +67,7 @@ app.listen(PORT, () => {
     console.log('🚀 Spur AI Chat Agent Backend');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`✅ Server running on http://localhost:${PORT}`);
-    console.log(`✅ CORS enabled for ${FRONTEND_URL}`);
+    console.log(`✅ CORS enabled for: ${allowedOrigins.join(', ')}`);
     console.log(`${isConfigured() ? '✅' : '❌'} Groq API ${isConfigured() ? 'configured' : 'NOT configured'}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('');

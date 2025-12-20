@@ -21,7 +21,10 @@ interface ChatHistoryResponse {
     error?: string;
 }
 
-const API_BASE = '/api/chat';
+// Use environment variable for API URL in production, or proxy in development
+const API_BASE = import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api/chat`
+    : '/api/chat';
 
 /**
  * Send a chat message and get AI reply
