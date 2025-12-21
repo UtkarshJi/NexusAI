@@ -7,6 +7,17 @@ A mini AI support agent for a live chat widget, built as a take-home assignment 
 ![Svelte](https://img.shields.io/badge/Svelte-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 
+## 🌐 Live Demo
+
+**[▶️ Try the Live Demo](https://spursoftwareapp.vercel.app)**
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://spursoftwareapp.vercel.app |
+| Backend API | https://spur-software-api.onrender.com |
+
+> **Note**: The backend runs on Render's free tier and sleeps after 15 mins of inactivity. First request may take ~30 seconds to wake up.
+
 ## ✨ Features
 
 - **AI-Powered Support Chat**: Integrated with Groq (Llama 3.3 70B) for intelligent, fast responses
