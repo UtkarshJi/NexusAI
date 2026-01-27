@@ -1,101 +1,69 @@
-# NexusAI Deployment Guide
+# NexusAI Deployment Guide (Render Only)
 
-This guide details how to deploy the NexusAI platform to production using **Render** (for the backend/database) and **Vercel** (for the frontend).
+This guide details how to deploy the entire NexusAI platform (Frontend + Backend) to **Render**.
 
 ## 📋 Prerequisites
 
-- A [GitHub](https://github.com) account (where this repo is hosted).
-- A [Render](https://render.com) account (for backend & database).
-- A [Vercel](https://vercel.com) account (for frontend dashboard).
-- A [Groq API Key](https://console.groq.com) (for AI functionality).
+- A [GitHub](https://github.com) account.
+- A [Render](https://render.com) account.
+- A [Groq API Key](https://console.groq.com).
+- A **PostgreSQL Connection String** (from Neon, Supabase, or Render).
 
 ---
 
-## 🚀 Deployment Strategy
+## 🚀 All-in-One Deployment
 
-Since the frontend needs the backend URL, and the backend needs the frontend URL (for CORS security), we perform the deployment in 3 phases:
+### Step 1: Deploy with Blueprints
 
-1. **Deploy Backend** (Render) -> Get the Backend URL.
-2. **Deploy Frontend** (Vercel) -> Use Backend URL -> Get Frontend URL.
-3. **Connect Everything** -> Update Backend with Frontend URL.
-
----
-
-## Phase 1: Deploy Backend to Render
-
-### Step A: Create a Free Database
-Since Render's "Blueprint" auto-creation often requires a credit card, we'll create the database manually (or use an external free provider):
-
-**Option 1: Render Free Postgres (Requires Card sometimes)**
-1. Dashboard -> New -> PostgreSQL.
-2. Name: `nexusai-db`, Plan: Free.
-3. Copy the **Internal Connection String** (if deploying backend to Render) or External (if running locally).
-
-**Option 2: Neon / Supabase (No Card)**
-1. Create a free account on [Neon.tech](https://neon.tech) or [Supabase](https://supabase.com).
-2. Create a project and copy the **Postgres Connection String**.
-   - Format: `postgresql://user:pass@host:port/dbname`
-   - *Tip*: If using Supabase, use port 5432 and "Transaction" mode if possible.
-
-### Step B: Deploy User Service
 1. Log in to your [Render Dashboard](https://dashboard.render.com).
-2. Click **New +** and select **Blueprint**.
-3. Connect your GitHub repository: `UtkarshJi/NexusAI`.
-4. Render will detect `render.yaml`.
+2. Click **New +** -> **Blueprint**.
+3. Connect your repo: `UtkarshJi/NexusAI`.
+4. Render will detect two services:
+   - `nexusai-api` (Web Service)
+   - `nexusai-dashboard` (Static Site)
 5. Click **Apply Blueprint**.
-6. **IMPORTANT**: You will be asked for Environment Variables.
-   - `DATABASE_URL`: Paste the connection string from Step A.
-   - `GROQ_API_KEY`: Paste your key from Groq Console.
+6. **Provide Environment Variables**:
+   - `DATABASE_URL`: Your Postgres connection string.
+   - `GROQ_API_KEY`: Your Groq API key.
+   - `CORS_ORIGINS`: Leave empty for now (we'll update later).
+   - `VITE_API_URL`: Leave empty for now (we'll update later).
 7. Click **Update/Deploy**.
-8. **Wait for deployment** to finish.
-9. Copy the **Service URL** (e.g., `https://nexusai-api-xyz.onrender.com`).
 
----
+*Note: The initial deployment might fail or be incomplete because the services don't know each other's URLs yet. This is normal.*
 
-## Phase 2: Deploy Frontend to Vercel
+### Step 2: Cross-Connect Services
 
-1. Log in to your [Vercel Dashboard](https://vercel.com).
-2. Click **Add New...** -> **Project**.
-3. Import your GitHub repository: `UtkarshJi/NexusAI`.
-4. **Configure Project**:
-   - **Framework Preset**: Vite (should be auto-detected).
-   - **Root Directory**: `dashboard`. **IMPORTANT**: You must edit the Root Directory to be `dashboard` if it's not already.
-     - *Correction*: Since we added `vercel.json`, Vercel might handle the root automatically, but if you see an option to "Edit" the Root Directory, set it to `dashboard`.
-5. **Environment Variables**:
-   - Expand the Environment Variables section.
-   - Key: `VITE_API_URL`
-   - Value: The **Render URL** you copied in Step 1 (e.g., `https://nexusai-api-xyz.onrender.com`).
-6. Click **Deploy**.
-7. Once deployed, copy the **Domain** (e.g., `nexusai-dashboard.vercel.app`).
+Once the services are created (even if deployment failed), Render assigns them URLs.
 
----
+**1. Get URLs:**
+- Go to Dashboard.
+- Copy `nexusai-api` URL (e.g., `https://nexusai-api-xyz.onrender.com`).
+- Copy `nexusai-dashboard` URL (e.g., `https://nexusai-dashboard-abc.onrender.com`).
 
-## Phase 3: Final Connection (CORS & Migrations)
+**2. Update Frontend Config:**
+- Go to **nexusai-dashboard** -> **Environment**.
+- Add/Update `VITE_API_URL` -> Paste the **Backend URL**.
+- Click **Save Changes** (triggers redeploy).
 
-### Update Backend CORS
-1. Go back to [Render Dashboard](https://dashboard.render.com).
-2. Select the `nexusai-api` service.
-3. Go to **Environment**.
-4. Add/Update the `CORS_ORIGINS` variable:
-   - Key: `CORS_ORIGINS`
-   - Value: `["https://nexusai-dashboard.vercel.app"]` (Replace with your actual Vercel domain).
-5. Click **Save Changes**. Render will redeploy automatically.
+**3. Update Backend Config:**
+- Go to **nexusai-api** -> **Environment**.
+- Add/Update `CORS_ORIGINS` -> Paste `["https://nexusai-dashboard-abc.onrender.com"]` (use your actual frontend URL).
+- Click **Save Changes** (triggers redeploy).
 
-### Run Database Migrations
-1. In Render, go to the `nexusai-api` service.
-2. Click on the **Shell** tab (Connect via SSH).
-3. Run the following commands to create the database tables:
+### Step 3: Run Database Migrations
+
+1. Go to **nexusai-api** service.
+2. Click **Shell**.
+3. Run:
    ```bash
    cd backend
    alembic upgrade head
    ```
-   *If successful, you should see output about running migrations.*
 
 ---
 
 ## ✅ Verification
 
-1. Open your Vercel URL.
-2. Try to **Register** a new user.
-3. Log in and Create a Project.
-4. If everything works, your production deployment is complete! 🎉
+1. Open your **nexusai-dashboard** URL.
+2. Register and create a project.
+3. If successful, you are fully deployed on Render!
