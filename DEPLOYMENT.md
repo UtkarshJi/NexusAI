@@ -23,20 +23,32 @@ Since the frontend needs the backend URL, and the backend needs the frontend URL
 
 ## Phase 1: Deploy Backend to Render
 
+### Step A: Create a Free Database
+Since Render's "Blueprint" auto-creation often requires a credit card, we'll create the database manually (or use an external free provider):
+
+**Option 1: Render Free Postgres (Requires Card sometimes)**
+1. Dashboard -> New -> PostgreSQL.
+2. Name: `nexusai-db`, Plan: Free.
+3. Copy the **Internal Connection String** (if deploying backend to Render) or External (if running locally).
+
+**Option 2: Neon / Supabase (No Card)**
+1. Create a free account on [Neon.tech](https://neon.tech) or [Supabase](https://supabase.com).
+2. Create a project and copy the **Postgres Connection String**.
+   - Format: `postgresql://user:pass@host:port/dbname`
+   - *Tip*: If using Supabase, use port 5432 and "Transaction" mode if possible.
+
+### Step B: Deploy User Service
 1. Log in to your [Render Dashboard](https://dashboard.render.com).
 2. Click **New +** and select **Blueprint**.
 3. Connect your GitHub repository: `UtkarshJi/NexusAI`.
-4. Render will detect the `render.yaml` file and show two resources:
-   - `nexusai-api` (Web Service)
-   - `nexusai-db` (PostgreSQL)
+4. Render will detect `render.yaml`.
 5. Click **Apply Blueprint**.
-6. Render will ask for **Environment Variables**. Provide:
+6. **IMPORTANT**: You will be asked for Environment Variables.
+   - `DATABASE_URL`: Paste the connection string from Step A.
    - `GROQ_API_KEY`: Paste your key from Groq Console.
 7. Click **Update/Deploy**.
-8. **Wait for deployment** to finish (this may take a few minutes).
-9. Once deployed, copy the **Service URL** of `nexusai-api` (e.g., `https://nexusai-api-xyz.onrender.com`).
-
-> **Note:** The initial database creation might take a moment. If the service fails immediately, wait a minute and manual redeploy.
+8. **Wait for deployment** to finish.
+9. Copy the **Service URL** (e.g., `https://nexusai-api-xyz.onrender.com`).
 
 ---
 
