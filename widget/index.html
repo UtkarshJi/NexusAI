@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Test Page</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #1f2937;
+        }
+
+        p {
+            color: #6b7280;
+        }
+
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        pre {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>NexusAI Widget Test</h1>
+    <p>This page demonstrates the NexusAI chat widget integration.</p>
+
+    <h2>Integration Code</h2>
+    <pre><code>&lt;script 
+  src="widget.js" 
+  data-project-key="your-api-key"
+  data-api-url="http://localhost:8000"
+  data-title="Support Chat"
+  data-primary-color="#3b82f6"
+&gt;&lt;/script&gt;</code></pre>
+
+    <h2>Available Options</h2>
+    <ul>
+        <li><code>data-project-key</code> - Required. Your project API key</li>
+        <li><code>data-api-url</code> - Optional. API endpoint (default: https://api.nexusai.com)</li>
+        <li><code>data-position</code> - Optional. "bottom-right" or "bottom-left"</li>
+        <li><code>data-primary-color</code> - Optional. Hex color for branding</li>
+        <li><code>data-title</code> - Optional. Chat window title</li>
+    </ul>
+
+    <!-- Widget Script -->
+    <script src="./src/index.tsx" type="module" data-project-key="nxa_test_key" data-api-url="http://localhost:8000"
+        data-title="NexusAI Support"></script>
+</body>
+
+</html>
