@@ -39,11 +39,14 @@ This guide details how to deploy the **Frontend to Vercel** and **Backend + Data
 1. Log in to [Vercel Dashboard](https://vercel.com).
 2. **Add New...** -> **Project**.
 3. Import `UtkarshJi/NexusAI`.
-4. **Project Settings**:
-   - **Framework**: Vite.
-   - **Root Directory**: `dashboard`. **(Important!)**
-5. **Environment Variables**:
-   - `VITE_API_URL`: Paste the **Render Backend URL** from Phase 1.
+4. **BEFORE CLICKING DEPLOY**, configure the following:
+   - **Framework Preset**: Vite
+   - **Root Directory**: Click "Edit" and type `dashboard`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+5. **Environment Variables** (expand the section):
+   - Key: `VITE_API_URL`
+   - Value: Your **Render Backend URL** from Phase 1 (e.g., `https://nexusai-api.onrender.com`)
 6. Click **Deploy**.
 7. Once finished, copy the **Frontend Domain** (e.g., `nexusai.vercel.app`).
 
