@@ -41,6 +41,16 @@ class Settings(BaseSettings):
             return json.loads(v)
         return v
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def fix_database_url(cls, v: str) -> str:
+        """Convert postgres:// to postgresql+asyncpg:// for asyncpg driver."""
+        if v.startswith("postgres://"):
+            v = v.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif v.startswith("postgresql://") and "+asyncpg" not in v:
+            v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
+
     # Server
     host: str = "0.0.0.0"
     port: int = 8000
