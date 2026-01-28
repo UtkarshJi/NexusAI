@@ -20,22 +20,34 @@ logger = logging.getLogger(__name__)
 
 def run_migrations():
     """Run Alembic migrations programmatically."""
+    import os
+    import sys
+    import traceback
+    
     try:
         from alembic.config import Config
         from alembic import command
-        import os
         
-        # Get the directory where this file is located
+        # Get the backend directory (parent of app directory)
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        alembic_cfg = Config(os.path.join(base_dir, "alembic.ini"))
-        alembic_cfg.set_main_option("script_location", os.path.join(base_dir, "alembic"))
         
-        command.upgrade(alembic_cfg, "head")
-        logger.info("Database migrations completed successfully")
+        # Change to backend directory so relative paths in alembic.ini work
+        original_cwd = os.getcwd()
+        os.chdir(base_dir)
+        print(f"[MIGRATION] Changed working directory to: {base_dir}", flush=True)
+        print(f"[MIGRATION] Database URL prefix: {settings.database_url[:30]}...", flush=True)
+        
+        try:
+            alembic_cfg = Config("alembic.ini")
+            command.upgrade(alembic_cfg, "head")
+            print("[MIGRATION] Database migrations completed successfully!", flush=True)
+        finally:
+            os.chdir(original_cwd)
+            
     except Exception as e:
-        logger.error(f"Migration error: {e}")
-        # Don't crash the app if migrations fail - tables might already exist
-        pass
+        print(f"[MIGRATION ERROR] {type(e).__name__}: {e}", flush=True)
+        traceback.print_exc()
+        # Don't crash the app - continue even if migrations fail
 
 
 @asynccontextmanager
