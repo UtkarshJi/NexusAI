@@ -4,6 +4,7 @@ NexusAI - SaaS AI Customer Support Platform
 Main FastAPI application entry point.
 """
 
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -14,14 +15,35 @@ from app.database import init_db
 from app.routers import auth_router, projects_router, knowledge_router, chat_router
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
+
+
+def run_migrations():
+    """Run Alembic migrations programmatically."""
+    try:
+        from alembic.config import Config
+        from alembic import command
+        import os
+        
+        # Get the directory where this file is located
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        alembic_cfg = Config(os.path.join(base_dir, "alembic.ini"))
+        alembic_cfg.set_main_option("script_location", os.path.join(base_dir, "alembic"))
+        
+        command.upgrade(alembic_cfg, "head")
+        logger.info("Database migrations completed successfully")
+    except Exception as e:
+        logger.error(f"Migration error: {e}")
+        # Don't crash the app if migrations fail - tables might already exist
+        pass
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
-    # Startup
-    # Note: In production, use Alembic migrations instead of init_db
-    # await init_db()
+    # Startup - run migrations automatically
+    logger.info("Running database migrations on startup...")
+    run_migrations()
     yield
     # Shutdown
     pass
