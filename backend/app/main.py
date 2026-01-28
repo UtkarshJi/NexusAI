@@ -36,10 +36,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS configuration - Allow widget to connect from any origin
+# CORS configuration
+# Note: When allow_credentials=True, you CANNOT use "*" as an origin
+# All allowed origins must be explicitly listed in CORS_ORIGINS env var
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins + ["*"],  # Widget can connect from any origin
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
