@@ -99,6 +99,19 @@ async def root():
     }
 
 
+@app.get("/init-db", tags=["Health"])
+async def init_database():
+    """
+    Initialize database tables.
+    Call this endpoint once after deployment to create tables.
+    """
+    try:
+        run_migrations()
+        return {"status": "success", "message": "Database migrations completed"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     """Detailed health check."""
