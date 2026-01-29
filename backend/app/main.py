@@ -142,6 +142,15 @@ async def init_database():
         return {"status": "error", "message": str(e)}
 
 
+@app.get("/debug/cors", tags=["Health"])
+async def debug_cors():
+    """Debug endpoint to check CORS configuration."""
+    return {
+        "cors_origins": settings.cors_origins,
+        "cors_origins_count": len(settings.cors_origins),
+    }
+
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     """Detailed health check."""
