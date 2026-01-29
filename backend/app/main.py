@@ -18,11 +18,41 @@ settings = get_settings()
 logger = logging.getLogger(__name__)
 
 
+def enable_pgvector_extension():
+    """Enable pgvector extension in PostgreSQL."""
+    import asyncio
+    from sqlalchemy import text
+    from sqlalchemy.ext.asyncio import create_async_engine
+    
+    async def _enable():
+        engine = create_async_engine(settings.database_url, echo=False)
+        async with engine.begin() as conn:
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+            print("[MIGRATION] pgvector extension enabled successfully!", flush=True)
+        await engine.dispose()
+    
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        asyncio.run(_enable())
+    else:
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            pool.submit(asyncio.run, _enable()).result()
+
+
 def run_migrations():
     """Run Alembic migrations programmatically."""
     import os
     import sys
     import traceback
+    
+    # First, enable pgvector extension
+    try:
+        print("[MIGRATION] Enabling pgvector extension...", flush=True)
+        enable_pgvector_extension()
+    except Exception as e:
+        print(f"[MIGRATION WARNING] Could not enable pgvector: {e}", flush=True)
     
     try:
         from alembic.config import Config
@@ -47,7 +77,7 @@ def run_migrations():
     except Exception as e:
         print(f"[MIGRATION ERROR] {type(e).__name__}: {e}", flush=True)
         traceback.print_exc()
-        # Don't crash the app - continue even if migrations fail
+        raise  # Re-raise so the /init-db endpoint can report the error
 
 
 @asynccontextmanager
