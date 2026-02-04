@@ -19,8 +19,8 @@ from app.schemas.user import TokenPayload
 
 settings = get_settings()
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing - using raw bcrypt for compatibility with bcrypt 4.2+
+import bcrypt as _bcrypt
 
 # Security schemes
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -28,13 +28,20 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify password against hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify password against hash using raw bcrypt."""
+    # Truncate password to 72 bytes (bcrypt limit)
+    password_bytes = plain_password.encode('utf-8')[:72]
+    hash_bytes = hashed_password.encode('utf-8')
+    return _bcrypt.checkpw(password_bytes, hash_bytes)
 
 
 def get_password_hash(password: str) -> str:
-    """Hash a password."""
-    return pwd_context.hash(password)
+    """Hash a password using raw bcrypt."""
+    # Truncate password to 72 bytes (bcrypt limit)
+    password_bytes = password.encode('utf-8')[:72]
+    salt = _bcrypt.gensalt()
+    hashed = _bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
 
 
 def create_access_token(subject: str, expires_delta: Optional[timedelta] = None) -> str:

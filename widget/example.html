@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusAI Widget Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            background: #f0f0ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #667eea;
+        }
+
+        code {
+            background: #e8e8f8;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>🤖 NexusAI Widget Demo</h1>
+        <p>This page demonstrates the embedded NexusAI chat widget. Look for the chat bubble in the bottom-right corner!
+        </p>
+
+        <div class="highlight">
+            <strong>📝 Instructions:</strong>
+            <ol>
+                <li>Create a project in the NexusAI Dashboard</li>
+                <li>Copy your API key from the project settings</li>
+                <li>Replace <code>YOUR_API_KEY</code> below with your actual key</li>
+                <li>Upload some documents to train your AI</li>
+                <li>Click the chat bubble to start chatting!</li>
+            </ol>
+        </div>
+
+        <h2>🔧 How to Integrate</h2>
+        <p>Add this single line before your closing <code>&lt;/body&gt;</code> tag:</p>
+        <pre style="background:#1a1a2e; color:#fff; padding:1rem; border-radius:8px; overflow-x:auto;"><code>&lt;script 
+  src="http://localhost:8000/widget.js"
+  data-project-key="YOUR_API_KEY"
+  data-api-url="http://localhost:8000"
+&gt;&lt;/script&gt;</code></pre>
+
+        <h2>⚙️ Configuration Options</h2>
+        <table style="width:100%; border-collapse:collapse; margin:1rem 0;">
+            <tr style="background:#f5f5ff;">
+                <th style="padding:8px; text-align:left; border-bottom:2px solid #ddd;">Attribute</th>
+                <th style="padding:8px; text-align:left; border-bottom:2px solid #ddd;">Description</th>
+            </tr>
+            <tr>
+                <td style="padding:8px; border-bottom:1px solid #eee;"><code>data-project-key</code></td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">Your API key (required)</td>
+            </tr>
+            <tr>
+                <td style="padding:8px; border-bottom:1px solid #eee;"><code>data-api-url</code></td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">Backend API URL</td>
+            </tr>
+            <tr>
+                <td style="padding:8px; border-bottom:1px solid #eee;"><code>data-position</code></td>
+                <td style="padding:8px; border-bottom:1px solid #eee;">"bottom-right" or "bottom-left"</td>
+            </tr>
+            <tr>
+                <td style="padding:8px;"><code>data-primary-color</code></td>
+                <td style="padding:8px;">Theme color (hex, e.g. "#6366f1")</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- NexusAI Chat Widget -->
+    <!-- Replace YOUR_API_KEY with your actual project API key from the dashboard -->
+    <script src="http://localhost:8000/widget.js" data-project-key="YOUR_API_KEY"
+        data-api-url="http://localhost:8000"></script>
+</body>
+
+</html>

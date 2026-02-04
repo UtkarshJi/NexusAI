@@ -1,0 +1,36 @@
+# NexusAI Render Blueprint
+# Deploy using: "New Blueprint" on Render Dashboard
+
+services:
+  # FastAPI Backend Web Service
+  - type: web
+    name: nexusai-api
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nexusai-db
+          property: connectionString
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DEBUG
+        value: false
+
+databases:
+  # PostgreSQL with pgvector (free tier - 1GB, expires after 90 days)
+  - name: nexusai-db
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
+    ipAllowList: []

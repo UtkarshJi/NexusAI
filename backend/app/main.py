@@ -5,15 +5,20 @@ Main FastAPI application entry point.
 """
 
 import logging
+import traceback
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, FileResponse
+from pathlib import Path
 
 from app.config import get_settings
 from app.database import init_db
 from app.routers import auth_router, projects_router, knowledge_router, chat_router
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 settings = get_settings()
 logger = logging.getLogger(__name__)
 
@@ -119,6 +124,21 @@ app.include_router(chat_router)
 app.include_router(knowledge_router)
 
 
+# Global exception handler to log errors and return them with proper response
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Catch all exceptions and log them."""
+    error_msg = f"{type(exc).__name__}: {str(exc)}"
+    logger.error(f"Unhandled exception: {error_msg}")
+    logger.error(traceback.format_exc())
+    print(f"[ERROR] {error_msg}", flush=True)
+    print(traceback.format_exc(), flush=True)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": error_msg, "traceback": traceback.format_exc()},
+    )
+
+
 @app.get("/", tags=["Health"])
 async def root():
     """Health check endpoint."""
@@ -159,6 +179,32 @@ async def health_check():
         "database": "connected",
         "groq": "configured" if settings.groq_api_key else "not configured",
     }
+
+
+# Widget Static File Endpoint
+WIDGET_PATH = Path(__file__).parent.parent / "static" / "widget.js"
+
+@app.get("/widget.js", tags=["Widget"])
+async def serve_widget():
+    """
+    Serve the embeddable chat widget JavaScript file.
+    
+    Usage: Add this script to your website:
+    <script src="{api_url}/widget.js" data-project-key="YOUR_API_KEY" data-api-url="{api_url}"></script>
+    """
+    if WIDGET_PATH.exists():
+        return FileResponse(
+            WIDGET_PATH,
+            media_type="application/javascript",
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Cache-Control": "public, max-age=3600",
+            }
+        )
+    return JSONResponse(
+        status_code=404,
+        content={"detail": "Widget not found. Please build the widget first."}
+    )
 
 
 if __name__ == "__main__":
