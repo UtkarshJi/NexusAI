@@ -10,11 +10,22 @@
 
 <p align="center">
   <a href="#features">Features</a> •
-  <a href="#screenshots">Screenshots</a> •
+  <a href="#live-demo">Live Demo</a> •
   <a href="#quick-start">Quick Start</a> •
+  <a href="#widget-integration">Widget Integration</a> •
   <a href="#deployment">Deployment</a> •
   <a href="#tech-stack">Tech Stack</a>
 </p>
+
+---
+
+## 🌐 Live Demo
+
+| Service | URL |
+|---------|-----|
+| **Dashboard** | [dashboard-iota-seven-66.vercel.app](https://dashboard-iota-seven-66.vercel.app) |
+| **API** | [nexusai-api.onrender.com](https://nexusai-api.onrender.com) |
+| **API Docs** | [nexusai-api.onrender.com/docs](https://nexusai-api.onrender.com/docs) |
 
 ---
 
@@ -29,42 +40,38 @@
 
 ---
 
-## 📸 Screenshots
-
-### Login Page
-Clean, modern authentication interface.
-
-![Login Page](docs/login.png)
-
-### Dashboard
-Manage all your AI chatbot projects in one place.
-
-![Dashboard](docs/dashboard.png)
-
-### Project Management
-Configure your chatbot, upload knowledge base documents, and test the AI.
-
-![Project Detail](docs/project-detail.png)
-
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- PostgreSQL 15+ (with pgvector extension)
+- Docker & Docker Compose (recommended)
+- OR: Python 3.11+, Node.js 18+, PostgreSQL 15+
 - [Groq API Key](https://console.groq.com/keys) (free)
 
-### Local Development
+### Using Docker (Recommended)
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/UtkarshJi/NexusAI.git
-   cd NexusAI
-   ```
+```bash
+# Clone the repository
+git clone https://github.com/UtkarshJi/NexusAI.git
+cd NexusAI
 
-2. **Set up the backend**
+# Copy environment files
+cp backend/.env.example backend/.env
+# Edit backend/.env with your GROQ_API_KEY
+
+# Start all services
+docker-compose up -d
+
+# Access the app
+# Dashboard: http://localhost:5173
+# API Docs: http://localhost:8000/docs
+```
+
+### Manual Setup
+
+<details>
+<summary>Click to expand manual setup instructions</summary>
+
+1. **Set up the backend**
    ```bash
    cd backend
    python -m venv .venv
@@ -79,16 +86,41 @@ Configure your chatbot, upload knowledge base documents, and test the AI.
    uvicorn app.main:app --reload --port 8000
    ```
 
-3. **Set up the frontend**
+2. **Set up the frontend**
    ```bash
    cd dashboard
    npm install
    npm run dev
    ```
 
-4. **Access the app**
+3. **Access the app**
    - Dashboard: http://localhost:5173
    - API Docs: http://localhost:8000/docs
+
+</details>
+
+---
+
+## 💬 Widget Integration
+
+Add the NexusAI chat widget to any website with a single script tag:
+
+```html
+<script 
+  src="https://nexusai-api.onrender.com/widget.js"
+  data-project-key="YOUR_API_KEY"
+  data-api-url="https://nexusai-api.onrender.com"
+></script>
+```
+
+### Configuration Options
+
+| Attribute | Description | Required |
+|-----------|-------------|----------|
+| `data-project-key` | Your API key from dashboard | ✅ Yes |
+| `data-api-url` | Backend API URL | ✅ Yes |
+| `data-position` | `bottom-right` or `bottom-left` | No |
+| `data-primary-color` | Theme color (hex) | No |
 
 ---
 
@@ -96,14 +128,23 @@ Configure your chatbot, upload knowledge base documents, and test the AI.
 
 ### Frontend → Vercel
 
-1. Import repository on [Vercel](https://vercel.com)
-2. Set environment variable:
-   - `VITE_API_URL` = Your Render backend URL
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy from dashboard folder
+cd dashboard
+vercel
+```
+
+Or import on [Vercel Dashboard](https://vercel.com):
+- Root Directory: `dashboard`
+- Environment Variable: `VITE_API_URL` = Your Render backend URL
 
 ### Backend → Render
 
 1. Connect repository on [Render](https://render.com)
-2. Use "New Blueprint" (auto-reads `render.yaml`)
+2. Use **"New Blueprint"** (auto-reads `render.yaml`)
 3. Set environment variables:
    - `GROQ_API_KEY` = Your Groq API key
    - `CORS_ORIGINS` = `["https://your-app.vercel.app"]`
@@ -129,10 +170,9 @@ Configure your chatbot, upload knowledge base documents, and test the AI.
 NexusAI/
 ├── backend/          # FastAPI backend
 │   ├── app/
-│   │   ├── api/      # API routes
-│   │   ├── core/     # Config, security
 │   │   ├── models/   # SQLAlchemy models
-│   │   ├── routers/  # Route handlers
+│   │   ├── routers/  # API route handlers
+│   │   ├── schemas/  # Pydantic schemas
 │   │   └── services/ # Business logic
 │   └── alembic/      # Database migrations
 ├── dashboard/        # React frontend
@@ -141,6 +181,7 @@ NexusAI/
 │       ├── hooks/
 │       └── pages/
 ├── widget/           # Embeddable chat widget
+├── docker-compose.yml
 ├── render.yaml       # Render deployment config
 └── vercel.json       # Vercel deployment config
 ```
@@ -149,7 +190,7 @@ NexusAI/
 
 ## 🔑 Environment Variables
 
-### Backend (.env)
+### Backend
 ```env
 DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/nexusai
 GROQ_API_KEY=your-groq-api-key
@@ -157,7 +198,7 @@ SECRET_KEY=your-secret-key
 CORS_ORIGINS=["http://localhost:5173"]
 ```
 
-### Frontend (.env)
+### Frontend
 ```env
 VITE_API_URL=http://localhost:8000
 ```
